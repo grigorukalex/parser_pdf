@@ -101,11 +101,11 @@ def get_bboxes_tables_page(pdf_path, skip_num_tables, padding):
         # tables = page.extract_tables()
         # Находим координаты таблиц на текущей странице
         tables = page.find_tables()
-        print('Кол-во таблиц на странице ', page_num + 1, ' : ', len(tables), ' шт')
 
-        # Удаляем первые 4 таблице у первого лист
+        # Удаляем первые 4 таблице у первого листа
         if page_num == 0 and len(tables) > 3:
             tables = tables[skip_num_tables:]
+        print('Кол-во таблиц на странице ', page_num + 1, ' : ', len(tables), ' шт')
 
         # Словарь с bounding_boxes для одной страницы
         bboxes_page = {'num_tables': len(tables),  # кол-во таблиц на странице
