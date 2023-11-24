@@ -3,14 +3,19 @@
 
     https://pypi.org/project/pdf2image/
 
-    Для работы требуется установленная программа poppler и добавлен путь до папки 'bin' в переменную окрежения
-    PATH="C:\path\to\poppler-xx\bin".
-    Скачать poppler архив для Windows можно здесь https://github.com/oschwartz10612/poppler-windows/releases/.
-    Так же лежит в папке distrib этого прокта.
-    Если ругается на poppler, следует проверить запуск C:\path\to\poppler-xx\bin\pdfinfo из командной строки.
-    Если ругается на отсутствие файла .dll, то установить VC_redist.x64 и VC_redist.x86 из distrib.
+    Для Windows:
+        Для работы требуется установленная программа poppler и добавлен путь до папки 'bin' в переменную окрежения
+        PATH="C:\path\to\poppler-xx\bin".
+        Скачать poppler архив для Windows можно здесь https://github.com/oschwartz10612/poppler-windows/releases/.
+        Так же лежит в папке distrib этого прокта.
+        Если ругается на poppler, следует проверить запуск C:\path\to\poppler-xx\bin\pdfinfo из командной строки.
+        Если ругается на отсутствие файла .dll, то установить VC_redist.x64 и VC_redist.x86 из distrib.
 
-    Так же можно установить poppler-utils через 'pip install poppler-utils' для Linux.
+    Для Linux:
+        sudo apt update
+        sudo apt install xpdf
+        pip install pdfplumber
+        pip install pdf2image
 
 """
 # Для извлечения текста из таблиц в PDF
