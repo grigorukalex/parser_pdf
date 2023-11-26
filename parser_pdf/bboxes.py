@@ -120,14 +120,14 @@ def get_bboxes_tables_page(pdf_path, skip_num_tables, padding):
         bboxes_tables = {}
         for table_num, table in enumerate(tables):
             bbox = table.bbox
-            x1 = bbox[0] / width - padding_width
-            y1 = bbox[1] / height - padding_height
-            x2 = bbox[2] / width + padding_width
-            y2 = bbox[3] / height + padding_height
-            bbox_norm = {'x1': x1,
-                         'y1': y1,
-                         'x2': x2,
-                         'y2': y2}
+            left = bbox[0] / width - padding_width
+            top = bbox[1] / height - padding_height
+            right = bbox[2] / width + padding_width
+            bottom = bbox[3] / height + padding_height
+            bbox_norm = {'left': left,
+                         'top': top,
+                         'right': right,
+                         'bottom': bottom}
             bboxes_page['tables'][table_num + 1] = bbox_norm
         bboxes_pages['pages'][page_num + 1] = bboxes_page
 
@@ -185,11 +185,11 @@ def draw_bboxes(path_imgs, bboxes_pages):
             num_table_str = str(num_table + 1)
             bbox_table = bboxes_tables[num_table_str]  # словарь bbox для текущей таблицы
 
-            x1 = bbox_table['x1'] * width
-            y1 = bbox_table['y1'] * height
-            x2 = bbox_table['x2'] * width
-            y2 = bbox_table['y2'] * height
-            bbox = (x1, y1, x2, y2)
+            left = bbox_table['left'] * width
+            top = bbox_table['top'] * height
+            right = bbox_table['right'] * width
+            bottom = bbox_table['bottom'] * height
+            bbox = (left, top, right, bottom)
 
             draw_rect_img(img_page, bbox)
 
