@@ -1,7 +1,7 @@
 import json
 import cv2
 
-from parser_pdf.bboxes import cut_bbox_from_img
+from parser_pdf.func import cut_bbox_from_img
 
 # Путь к изображению из которого вырезаем bbox
 path_img = 'db/page_1.png'
