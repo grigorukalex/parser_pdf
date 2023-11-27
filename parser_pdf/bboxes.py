@@ -43,9 +43,9 @@ def clean_dir_tree(folder):
 
 
 # Преобразование PDF в изображения и сохранение в одноимённую папку
-def convert_to_images(pdf_path):
+def convert_to_images(pdf_path, dpi):
     # Преобразовываем PDF в изображения
-    imgs = convert_from_path(pdf_path)
+    imgs = convert_from_path(pdf_path, dpi=100)
     # Определяем путь к одноимённой папке
     folder, _ = os.path.splitext(pdf_path)
     # Очищаем папку со старыми изображениями, если она есть
@@ -71,8 +71,8 @@ def get_bboxes_tables_page(pdf_path, skip_num_tables, padding):
     """
     :param pdf_path:
     :param skip_num_tables: кол-во таблиц на первой странице, которые не будут включены в найденные bboxes
-    :param padding: Отступ сверху и сниху от границы таблицы в % от ширины и высоты страницы
-        Пример: padding=(10.0, 5.0)
+    :param padding: Отступ слева, сверху, справа, снизу от границы таблицы в % от ширины и высоты страницы
+        Пример: padding=(10.0, 5.0, 4.0, 6.0)
     :return:
     """
     # Определяем размеры страницы
@@ -91,8 +91,10 @@ def get_bboxes_tables_page(pdf_path, skip_num_tables, padding):
     width, height = int(bbox[2]), int(bbox[3])
 
     # Определяем отступы
-    padding_width = padding[0] / 100.0  # отступ в px по ширине
-    padding_height = padding[1] / 100.0  # отступ в px по высоте
+    padding_left = padding[0] / 100.0  # отступ слева в долях по ширине
+    padding_top = padding[1] / 100.0  # отступ сверху в долях по высоте
+    padding_right = padding[2] / 100.0  # отступ справа в долях по ширине
+    padding_bottom = padding[3] / 100.0  # отступ снизу в долях по высоте
 
     num_pages = len(pdf.pages)
 
@@ -120,10 +122,18 @@ def get_bboxes_tables_page(pdf_path, skip_num_tables, padding):
         bboxes_tables = {}
         for table_num, table in enumerate(tables):
             bbox = table.bbox
-            left = bbox[0] / width - padding_width
-            top = bbox[1] / height - padding_height
-            right = bbox[2] / width + padding_width
-            bottom = bbox[3] / height + padding_height
+            left = bbox[0] / width - padding_left
+            top = bbox[1] / height - padding_top
+            right = bbox[2] / width + padding_right
+            bottom = bbox[3] / height + padding_bottom
+            if left < 0.0:
+                left = 0.0
+            if top < 0.0:
+                top = 0.0
+            if right > 1.0:
+                right = 1.0
+            if bottom > 1.0:
+                bottom = 1.0
             bbox_norm = {'left': left,
                          'top': top,
                          'right': right,
@@ -198,7 +208,7 @@ def draw_bboxes(path_imgs, bboxes_pages):
         # cv2_show("Image", img_page)
 
 
-def parse(pdf_path, skip_num_tables, padding):
+def parse(pdf_path, skip_num_tables, padding, dpi=100, flag_draw_bboxes=True):
     """
     Извлекает из PDF-файла (pdf_path) координаты bboxes для всех страниц файла. Сохраняет координаты в JSON-файл
     с таким же именем как у PDF-файл в этой же папке.
@@ -207,11 +217,13 @@ def parse(pdf_path, skip_num_tables, padding):
     Координаты сохраняются в размерах от 0 до 1 относительно высоты и ширины документа.
     :param pdf_path: путь к файлу PDF
     :param skip_num_tables: кол-во таблиц на первой странице, которые не будут включены в найденные bboxes
-    :param padding: Отступ сверху и сниху от границы таблицы в % от ширины и высоты страницы
-    Пример: padding=(10.0, 5.0)
+    :param padding: Отступ сверху, снизу и слева, справа от границы таблицы в % от ширины и высоты страницы
+    :param dpi: кол-во точек на дюйм в полученном изображении при конвертации PDF в PNG
+    :param flag_draw_bboxes: True - для отрисовки bboxes на изображениях, False - без отрисовки
+    Пример: padding=(10.0, 5.0, 4.0, 3.0)
     :return:
     """
-    path_imgs = convert_to_images(pdf_path)
+    path_imgs = convert_to_images(pdf_path, dpi)
 
     # Создаём пустое белое изображение по размеру страницы
     # image = np.full((height, width, 3), 255, np.uint8)
@@ -230,5 +242,7 @@ def parse(pdf_path, skip_num_tables, padding):
     with open(path_settings_table_json, 'r') as json_file:
         bboxes_pages = json.load(json_file)
 
-    # Отрисовываем все bboxes на всех изображениях
-    draw_bboxes(path_imgs, bboxes_pages)
+    # Если установлен флаг отрисовки
+    if flag_draw_bboxes:
+        # Отрисовываем все bboxes на всех изображениях
+        draw_bboxes(path_imgs, bboxes_pages)
